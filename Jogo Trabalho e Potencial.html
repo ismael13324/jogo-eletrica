@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quem Sou Eu? - Trabalho e Potencial Elétrico</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px #000;
+        }
+        
+        h2 {
+            color: #4fc3f7;
+            margin-top: 0;
+        }
+        
+        .game-area {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .question {
+            font-size: 1.5em;
+            margin: 20px 0;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .option {
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .option:hover {
+            background-color: #303f9f;
+            transform: scale(1.02);
+        }
+        
+        .player-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .player {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        .scoreboard {
+            margin-top: 30px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .timer {
+            font-size: 2em;
+            color: #ffeb3b;
+            margin: 10px 0;
+        }
+        
+        #lobby {
+            margin-top: 20px;
+        }
+        
+        #startGame, #nextQuestion {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.2em;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        
+        #startGame:hover, #nextQuestion:hover {
+            background-color: #388e3c;
+            transform: scale(1.05);
+        }
+        
+        .concept-image {
+            max-width: 200px;
+            max-height: 150px;
+            margin: 15px auto;
+            display: block;
+            border-radius: 8px;
+            border: 3px solid white;
+        }
+        
+        .feedback {
+            font-size: 1.3em;
+            margin: 20px 0;
+            min-height: 30px;
+            color: #ffeb3b;
+        }
+        
+        .explanation {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+        
+        #playerName {
+            padding: 10px;
+            font-size: 1.1em;
+            width: 250px;
+            border-radius: 5px;
+            border: none;
+            margin-right: 10px;
+        }
+        
+        #joinGame {
+            padding: 10px 15px;
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        #joinGame:hover {
+            background-color: #0b7dda;
+        }
+        
+        .final-results {
+            font-size: 1.5em;
+            margin-top: 30px;
+        }
+        
+        .winner {
+            color: #ffeb3b;
+            font-size: 2em;
+            margin: 20px 0;
+            text-shadow: 0 0 10px gold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quem Sou Eu?</h1>
+        <h2>Trabalho e Potencial Elétrico</h2>
+        
+        <div id="joinScreen">
+            <h3>Entre no Jogo</h3>
+            <input type="text" id="playerName" placeholder="Seu nome" maxlength="20">
+            <button id="joinGame">Entrar</button>
+            <p id="joinError" style="color: #ff5252; display: none;">Por favor, digite um nome válido (máx. 20 caracteres)</p>
+        </div>
+        
+        <div id="lobby" style="display: none;">
+            <h3>Sala de Espera</h3>
+            <div class="player-list" id="playersWaiting"></div>
+            <p>Esperando o host iniciar o jogo... (1/35 jogadores)</p>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+            <div class="timer" id="timer">30</div>
+            <div class="question" id="question"></div>
+            <img class="concept-image" id="conceptImage" src="" alt="Imagem do conceito">
+            <div class="options" id="options"></div>
+            <div class="feedback" id="feedback"></div>
+            <div class="explanation" id="explanation" style="display: none;"></div>
+            <button id="nextQuestion" style="display: none;">Próxima Pergunta</button>
+        </div>
+        
+        <div class="scoreboard" id="scoreboard" style="display: none;">
+            <h3>Placar</h3>
+            <div id="scores"></div>
+        </div>
+        
+        <div id="finalResults" style="display: none;">
+            <h3>Fim do Jogo!</h3>
+            <div class="final-results">
+                <p>Pontuação final:</p>
+                <div id="finalScores"></div>
+                <div class="winner" id="winner"></div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="correctSound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3" preload="auto"></audio>
+    <audio id="wrongSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3" preload="auto"></audio>
+    <audio id="timeSound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundjay.com/mechanical/sounds/sci-fi-01.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Variáveis do jogo
+        let currentPlayer = null;
+        let players = {};
+        let currentQuestionIndex = 0;
+        let scoreboard = {};
+        let timerInterval;
+        let timeLeft = 30;
+        let isHost = false;
+        
+        // Perguntas sobre Trabalho e Potencial Elétrico com explicações
+        const questions = [
+            {
+                question: "Quem sou eu? Sou uma grandeza física escalar que mede a energia transferida pela força elétrica ao mover uma carga entre dois pontos.",
+                options: [
+                    "Trabalho elétrico",
+                    "Campo elétrico",
+                    "Corrente elétrica",
+                    "Resistência elétrica"
+                ],
+                correct: 0,
+                image: "https://cdn.pixabay.com/photo/2017/01/31/23/42/decorative-2028031_640.png",
+                explanation: "O <strong>trabalho elétrico</strong> é a energia transferida quando uma força elétrica move uma carga entre dois pontos. É calculado por W = qΔV, onde q é a carga e ΔV é a diferença de potencial. No SI, sua unidade é o joule (J). Em um campo elétrico uniforme, pode ser expresso como W = qEd, onde E é o campo e d o deslocamento na direção do campo."
+            },
+            {
+                question: "Quem sou eu? Sou a diferença de energia potencial elétrica por unidade de carga entre dois pontos em um campo elétrico.",
+                options: [
+                    "Diferença de potencial (ddp)",
+                    "Lei de Ohm",
+                    "Capacitância",
+                    "Indução eletromagnética"
+                ],
+                correct: 0,
+                image: "https://cdn.pixabay.com/photo/2016/10/10/01/49/high-voltage-1727467_640.png",
+                explanation: "A <strong>diferença de potencial (ddp)</strong>, também chamada de tensão elétrica, é definida como a variação de energia potencial por unidade de carga entre dois pontos (ΔV = ΔU/q). Medida em volts (V = J/C), representa o trabalho necessário para mover uma carga unitária entre dois pontos. Em circuitos, é a 'força' que impulsiona as cargas."
+            },
+            {
+                question: "Quem sou eu? Sou calculado pelo produto da carga pelo potencial elétrico (U = qV).",
+                options: [
+                    "Energia potencial elétrica",
+                    "Força eletromotriz",
+                    "Densidade de corrente",
+                    "Fluxo elétrico"
+                ],
+                correct: 0,
+                image: "https://cdn.pixabay.com/photo/2017/01/31/23/42/decorative-2028034_640.png",
+                explanation: "A <strong>energia potencial elétrica</strong> (U) é a energia armazenada por uma carga em um campo elétrico devido à sua posição. Para uma carga pontual q no potencial V: U = qV. Quando a carga se move, a variação de energia potencial é ΔU = qΔV. Essa energia pode se converter em cinética ou trabalho."
+            },
+            {
+                question: "Quem sou eu? Sou o trabalho necessário para mover uma carga unitária de um ponto a outro em um campo elétrico.",
+                options: [
+                    "Tensão elétrica",
+                    "Potência elétrica",
+                    "Condutância",
+                    "Permissividade"
+                ],
+                correct: 0,
+                image: "https://cdn.pixabay.com/photo/2016/10/10/01/48/electricity-1727458_640.png",
+                explanation: "A <strong>tensão elétrica</strong> (ou diferença de potencial) entre dois pontos é numericamente igual ao trabalho por unidade de carga necessário para mover uma carga teste entre esses pontos contra o campo elétrico (V = W/q). Em um campo uniforme E, a ddp entre pontos separados por d é V = Ed."
+            },
+            {
+                question: "Quem sou eu? Em um campo elétrico uniforme, sou calculado por W = qEd, onde E é o campo e d é o deslocamento.",
+                options: [
+                    "Trabalho da força elétrica",
+                    "Lei de Gauss",
+                    "Energia armazenada em capacitor",
+                    "Força de Lorentz"
+                ],
+                correct: 0,
+                image: "https://cdn.pixabay.com/photo/2017/01/31/23/42/decorative-2028039_640.png",
+                explanation: "O <strong>trabalho da força elétrica</strong> em um campo uniforme é W = qEd, onde q é a carga, E a intensidade do campo e d o deslocamento paralelo ao campo. Se a carga se move perpendicularmente às linhas de campo (θ=90°), W=0 pois cos90°=0. Trabalho positivo: campo realiza trabalho sobre a carga; negativo: contra o campo."
+            },
+            {
+                question: "Quem sou eu? Em circuitos, sou frequentemente chamado de 'voltagem' e medido em volts.",
+                options: [
+                    "Potencial elétrico",
+                    "Resistência equivalente",
+                    "Corrente contínua",
+                    "Frequência elétrica"
+                ],
+                correct: 0,
+                image: "https://cdn.pixabay.com/photo/2016/10/10/01/49/high-voltage-1727468_640.png",
+                explanation: "O <strong>potencial elétrico</strong> em um ponto é o trabalho por unidade de carga necessário para trazer uma carga teste do infinito até esse ponto (V = W/q). Em circuitos, a 'voltagem' é a diferença de potencial entre dois pontos. Pilhas comuns fornecem 1.5V, tomadas 110V ou 220V. É uma grandeza escalar medida em volts (V)."
+            },
+            {
+                question: "Quem sou eu? Para uma carga pontual, sou dado por V = kQ/r, onde k é a constante eletrostática.",
+                options: [
+                    "Potencial elétrico",
+                    "Campo elétrico",
+                    "Fluxo magnético",
+                    "Densidade de carga"
+                ],
+                correct: 0,
+                image: "https://cdn.pixabay.com/photo/2017/01/31/23/42/decorative-2028036_640.png",
+                explanation: "O <strong>potencial elétrico</strong> criado por uma carga pontual Q é V = kQ/r, onde k=9×10⁹ Nm²/C² (constante eletrostática) e r é a distância à carga. Potencial positivo: carga positiva; negativo: carga negativa. Superfícies com mesmo potencial são chamadas equipotenciais. Para múltiplas cargas, o potencial total é a soma algébrica dos potenciais individuais."
+            },
+            {
+                question: "Quem sou eu? Quando uma carga se move perpendicularmente às linhas de campo elétrico, meu valor é zero.",
+                options: [
+                    "Trabalho elétrico",
+                    "Potencial elétrico",
+                    "Força magnética",
+                    "Indutância"
+                ],
+                correct: 0,
+                image: "https://cdn.pixabay.com/photo/2017/01/31/23/42/decorative-2028033_640.png",
+                explanation: "O <strong>trabalho elétrico</strong> é zero quando o deslocamento é perpendicular ao campo porque W = F·d·cosθ e θ=90° (cos90°=0). Isso ocorre porque a força elétrica é sempre paralela ao campo. Movimento ao longo de superfícies equipotenciais também resulta em W=0, pois ΔV=0 e W=qΔV."
+            },
+            {
+                question: "Quem sou eu? Em superfícies equipotenciais, tenho o mesmo valor em todos os pontos.",
+                options: [
+                    "Potencial elétrico",
+                    "Densidade de corrente",
+                    "Campo magnético",
+                    "Carga líquida"
+                ],
+                correct: 0,
+                image: "https://cdn.pixabay.com/photo/2016/10/10/01/48/electricity-1727459_640.png",
+                explanation: "O <strong>potencial elétrico</strong> é constante em superfícies equipotenciais. O campo elétrico é sempre perpendicular a essas superfícies e aponta no sentido dos potenciais decrescentes. Exemplos: superfície de condutores em equilíbrio (todo o condutor é equipotencial), linhas equipotenciais em torno de cargas pontuais (esféricas) ou placas paralelas (planas)."
+            },
+            {
+                question: "Quem sou eu? Minha unidade no SI é o joule por coulomb (J/C), também chamado de volt.",
+                options: [
+                    "Potencial elétrico",
+                    "Capacitância",
+                    "Resistividade",
+                    "Condutividade"
+                ],
+                correct: 0,
+                image: "https://cdn.pixabay.com/photo/2016/10/10/01/49/high-voltage-1727466_640.png",
+                explanation: "O <strong>potencial elétrico</strong> tem unidade no SI de joule por coulomb (J/C), denominada volt (V) em homenagem a Alessandro Volta. 1V = 1J/1C. Essa unidade reflete a energia potencial por unidade de carga. Por exemplo, uma bateria de 9V fornece 9J de energia para cada coulomb de carga que passa por ela."
+            }
+        ];
+        
+        // Elementos DOM
+        const joinScreen = document.getElementById('joinScreen');
+        const lobby = document.getElementById('lobby');
+        const gameArea = document.getElementById('gameArea');
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const feedbackElement = document.getElementById('feedback');
+        const explanationElement = document.getElementById('explanation');
+        const nextQuestionButton = document.getElementById('nextQuestion');
+        const scoreboardElement = document.getElementById('scoreboard');
+        const scoresElement = document.getElementById('scores');
+        const finalResults = document.getElementById('finalResults');
+        const finalScores = document.getElementById('finalScores');
+        const winnerElement = document.getElementById('winner');
+        const playersWaitingElement = document.getElementById('playersWaiting');
+        const playerNameInput = document.getElementById('playerName');
+        const joinButton = document.getElementById('joinGame');
+        const joinError = document.getElementById('joinError');
+        const timerElement = document.getElementById('timer');
+        const conceptImage = document.getElementById('conceptImage');
+        const correctSound = document.getElementById('correctSound');
+        const wrongSound = document.getElementById('wrongSound');
+        const timeSound = document.getElementById('timeSound');
+        const bgMusic = document.getElementById('bgMusic');
+        
+        // Funções do jogo
+        function joinGame() {
+            const playerName = playerNameInput.value.trim();
+            
+            if (playerName === '' || playerName.length > 20) {
+                joinError.style.display = 'block';
+                return;
+            }
+            
+            joinError.style.display = 'none';
+            currentPlayer = playerName;
+            
+            // Simulação de conexão com servidor (em um jogo real, seria uma conexão WebSocket)
+            setTimeout(() => {
+                joinScreen.style.display = 'none';
+                lobby.style.display = 'block';
+                
+                // O primeiro jogador a entrar é o host
+                if (Object.keys(players).length === 0) {
+                    isHost = true;
+                    players[playerName] = { score: 0, ready: true };
+                    updatePlayerList();
+                    
+                    // Mostrar botão de iniciar apenas para o host
+                    const startButton = document.createElement('button');
+                    startButton.id = 'startGame';
+                    startButton.textContent = 'Iniciar Jogo';
+                    startButton.addEventListener('click', startGame);
+                    lobby.appendChild(startButton);
+                } else {
+                    players[playerName] = { score: 0, ready: false };
+                    updatePlayerList();
+                }
+            }, 1000);
+        }
+        
+        function updatePlayerList() {
+            playersWaitingElement.innerHTML = '';
+            for (const player in players) {
+                const playerElement = document.createElement('div');
+                playerElement.className = 'player';
+                playerElement.textContent = player;
+                if (players[player].ready) {
+                    playerElement.style.backgroundColor = '#4caf50';
+                }
+                playersWaitingElement.appendChild(playerElement);
+            }
+        }
+        
+        function startGame() {
+            lobby.style.display = 'none';
+            gameArea.style.display = 'block';
+            scoreboardElement.style.display = 'block';
+            
+            // Iniciar música de fundo
+            bgMusic.volume = 0.3;
+            bgMusic.play();
+            
+            // Inicializar placar
+            for (const player in players) {
+                scoreboard[player] = 0;
+            }
+            updateScoreboard();
+            
+            // Mostrar primeira pergunta
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                endGame();
+                return;
+            }
+            
+            const question = questions[currentQuestionIndex];
+            questionElement.textContent = question.question;
+            conceptImage.src = question.image;
+            
+            optionsElement.innerHTML = '';
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.textContent = option;
+                button.addEventListener('click', () => selectAnswer(index));
+                optionsElement.appendChild(button);
+            });
+            
+            feedbackElement.textContent = '';
+            explanationElement.style.display = 'none';
+            explanationElement.innerHTML = '';
+            nextQuestionButton.style.display = 'none';
+            
+            // Iniciar temporizador
+            timeLeft = 30;
+            timerElement.textContent = timeLeft;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+        
+        function updateTimer() {
+            timeLeft--;
+            timerElement.textContent = timeLeft;
+            
+            if (timeLeft <= 5) {
+                timerElement.style.color = '#ff5252';
+                if (timeLeft <= 3) {
+                    timeSound.play();
+                }
+            }
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timeUp();
+            }
+        }
+        
+        function timeUp() {
+            feedbackElement.textContent = "Tempo esgotado!";
+            const correctIndex = questions[currentQuestionIndex].correct;
+            highlightCorrectAnswer(correctIndex);
+            showExplanation();
+            nextQuestionButton.style.display = 'block';
+        }
+        
+        function selectAnswer(selectedIndex) {
+            clearInterval(timerInterval);
+            
+            const correctIndex = questions[currentQuestionIndex].correct;
+            if (selectedIndex === correctIndex) {
+                feedbackElement.textContent = "Correto! +10 pontos";
+                feedbackElement.style.color = "#4caf50";
+                correctSound.play();
+                
+                // Atualizar pontuação (simulado - em um jogo real seria no servidor)
+                if (currentPlayer && players[currentPlayer]) {
+                    players[currentPlayer].score += 10;
+                    scoreboard[currentPlayer] = players[currentPlayer].score;
+                    updateScoreboard();
+                }
+            } else {
+                feedbackElement.textContent = `Incorreto! A resposta correta é: ${questions[currentQuestionIndex].options[correctIndex]}`;
+                feedbackElement.style.color = "#ff5252";
+                wrongSound.play();
+            }
+            
+            highlightCorrectAnswer(correctIndex);
+            showExplanation();
+            nextQuestionButton.style.display = 'block';
+        }
+        
+        function showExplanation() {
+            const explanation = questions[currentQuestionIndex].explanation;
+            explanationElement.innerHTML = `<h4>Explicação:</h4><p>${explanation}</p>`;
+            explanationElement.style.display = 'block';
+        }
+        
+        function highlightCorrectAnswer(correctIndex) {
+            const optionButtons = document.querySelectorAll('.option');
+            optionButtons.forEach((button, index) => {
+                if (index === correctIndex) {
+                    button.style.backgroundColor = '#4caf50';
+                } else {
+                    button.style.backgroundColor = '#f44336';
+                }
+                button.disabled = true;
+            });
+        }
+        
+        function nextQuestion() {
+            currentQuestionIndex++;
+            showQuestion();
+            timerElement.style.color = '#ffeb3b';
+        }
+        
+        function updateScoreboard() {
+            scoresElement.innerHTML = '';
+            
+            // Converter o placar em array e ordenar por pontuação
+            const sortedScores = Object.entries(scoreboard).sort((a, b) => b[1] - a[1]);
+            
+            sortedScores.forEach(([player, score]) => {
+                const scoreItem = document.createElement('div');
+                scoreItem.className = 'score-item';
+                
+                const playerSpan = document.createElement('span');
+                playerSpan.textContent = player;
+                
+                const scoreSpan = document.createElement('span');
+                scoreSpan.textContent = score;
+                
+                scoreItem.appendChild(playerSpan);
+                scoreItem.appendChild(scoreSpan);
+                scoresElement.appendChild(scoreItem);
+            });
+        }
+        
+        function endGame() {
+            gameArea.style.display = 'none';
+            finalResults.style.display = 'block';
+            
+            // Converter o placar em array e ordenar por pontuação
+            const sortedScores = Object.entries(scoreboard).sort((a, b) => b[1] - a[1]);
+            
+            finalScores.innerHTML = '';
+            sortedScores.forEach(([player, score]) => {
+                const scoreItem = document.createElement('div');
+                scoreItem.className = 'score-item';
+                
+                const playerSpan = document.createElement('span');
+                playerSpan.textContent = player;
+                
+                const scoreSpan = document.createElement('span');
+                scoreSpan.textContent = score;
+                
+                scoreItem.appendChild(playerSpan);
+                scoreItem.appendChild(scoreSpan);
+                finalScores.appendChild(scoreItem);
+            });
+            
+            // Anunciar vencedor
+            if (sortedScores.length > 0) {
+                const [winner, score] = sortedScores[0];
+                winnerElement.textContent = `Vencedor: ${winner} com ${score} pontos!`;
+            }
+        }
+        
+        // Event listeners
+        joinButton.addEventListener('click', joinGame);
+        nextQuestionButton.addEventListener('click', nextQuestion);
+        
+        // Permitir entrar com Enter
+        playerNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                joinGame();
+            }
+        });
+    </script>
+</body>
+</html>
